@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<body>
+<div style="display: grid; grid-template-columns: 1fr 1fr;">
+
+
+    <div>
+    <h1>Webcam Stream</h1>
+    <video id="webcam" autoplay></video>
+    <script>
+        const video = document.getElementById('webcam');
+
+        // Request user permission for the webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+
+                // Function to capture and send an image
+                const captureAndSendImage = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Convert the image to a Blob
+                    canvas.toBlob((blob) => {
+                        // Create a FormData object to send the image as a file
+                        const formData = new FormData();
+                        formData.append('image', blob, 'webcam_image.jpeg');
+
+                        // Send the image to the server
+                        fetch('/api/webcam-image/', {
+                            method: 'POST',
+                            body: formData,
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                console.log('Image sent successfully.');
+                            } else {
+                                console.error('Error sending image. Status:', response.status);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error sending image:', error);
+                        });
+                    }, 'image/jpeg');
+                };
+
+                // Automatically capture and send images at 10 FPS (every 100 milliseconds)
+                const captureInterval = 100; // Adjust this to control the frame rate (100 ms = 10 FPS)
+                setInterval(captureAndSendImage, captureInterval);
+            })
+            .catch((error) => {
+                console.error('Error accessing webcam:', error);
+            });
+    </script>
+
+    </div>
+
+    <div>
+        <h1>Buggy Video Live Stream</h1>
+        <img src="{% url 'buggy_feed' %}">
+    </div>
+
+</div>
+
+    </body>
+</html>
