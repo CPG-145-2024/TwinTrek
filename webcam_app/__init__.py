@@ -1,3 +1,2 @@
-from .utils.cvfpscalc import CvFpsCalc
-from .model.keypoint_classifier.keypoint_classifier import KeyPointClassifier
-from .model.point_history_classifier.point_history_classifier import PointHistoryClassifier
+from .gestureDetector.keypoint_classifier.keypoint_classifier import KeyPointClassifier
+from .gestureDetector.hand_gesture import HandDetector 

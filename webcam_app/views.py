@@ -4,17 +4,11 @@ from rest_framework.response import Response
 import cv2
 import numpy as np
 import threading
-import csv
-import copy
-import itertools
-from collections import deque
 
-import cv2 as cv
 import numpy as np
-import mediapipe as mp
 
-from .model import KeyPointClassifier
-from .model import PointHistoryClassifier
+from .gestureDetector import HandDetector
+from .gestureDetector import KeyPointClassifier
 
 import socket
 
@@ -22,6 +16,16 @@ from django.http.response import StreamingHttpResponse
 from webcam_app.camera import BuggyCam
 
 # Global variables
+detector = HandDetector() #detector obj
+
+forward = False # is going forward or backward
+speed = 0   # speed of buggy
+
+labels = ['Start','NULL','Left','Right','Mark','Pick','Drop']   #labels of gestures
+
+kpc = KeyPointClassifier()  #gesture classification object
+
+
 
 @api_view(['POST'])
 def webcam_image_view(request):
@@ -31,7 +35,7 @@ def webcam_image_view(request):
         data = np.asarray(bytearray(request.FILES['image'].read()),dtype='uint8')
         data = cv2.imdecode(data,cv2.IMREAD_COLOR)
         # print(data)
-        main(data)
+        processHand(data)
             
     return Response({'message': 'Webcam image processed successfully'})
 
@@ -46,48 +50,87 @@ def buggy_feed(request):
 					content_type='multipart/x-mixed-replace; boundary=frame')
 
 
-cap_device = 0
-cap_width = 960
-cap_height = 540
-use_static_image_mode = False
-min_detection_confidence = 0.7
-min_tracking_confidence = 0.5
-use_brect = True
-mode = 0
+def processHand(image):
+    # img = cv2.flip(image,1)
+    global forward
+    global speed
+
+    hands_info = detector.getHandInfo(image)
+
+    for hand in hands_info:
+        if(hand['hand']=='Left'):
+            
+            xt,yt = hand['landmarks'][4][0],hand['landmarks'][4][1]
+            xf,yf = hand['landmarks'][8][0],hand['landmarks'][8][1]
+
+            forward = yt>yf
+            # print(forward)
+
+            xmin,xmax,ymin,ymax = detector.getBoundingValues(hand['landmarks'])
+
+            #scale for speed independence
+            xt = np.interp(xt,(xmin,xmax),(0,300))
+            xf = np.interp(xf,(xmin,xmax),(0,300))
+            yt = np.interp(yt,(ymin,ymax),(0,300))
+            yf = np.interp(yf,(ymin,ymax),(0,300))
+            
+            speed = np.hypot(xt-xf,yt-yf)  # goes atmax to 300
+            # print(speed)
+            # print(preprocessed_lm)
+        else:
+            preProcessedLandmark = detector.preprocessLandmark(hand['landmarks'])
+            signId = kpc(preProcessedLandmark)
+            
+            print(labels[signId])
+            if(signId==0):
+                print(forward,speed)
+
+
+
+
+
+# cap_device = 0
+# cap_width = 960
+# cap_height = 540
+# use_static_image_mode = False
+# min_detection_confidence = 0.7
+# min_tracking_confidence = 0.5
+# use_brect = True
+# mode = 0
 
 # Model objects
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(
-    static_image_mode=use_static_image_mode,
-    max_num_hands=1,
-    min_detection_confidence=min_detection_confidence,
-    min_tracking_confidence=min_tracking_confidence,
-)
+# mp_hands = mp.solutions.hands
+# hands = mp_hands.Hands(
+#     static_image_mode=use_static_image_mode,
+#     max_num_hands=1,
+#     min_detection_confidence=min_detection_confidence,
+#     min_tracking_confidence=min_tracking_confidence,
+# )
 
-keypoint_classifier = KeyPointClassifier()
-point_history_classifier = PointHistoryClassifier()
+# keypoint_classifier = KeyPointClassifier()
+# point_history_classifier = PointHistoryClassifier()
 
-# Labels
-with open('webcam_app/model/keypoint_classifier/keypoint_classifier_label.csv',encoding='utf-8-sig') as f:
-    keypoint_classifier_labels = csv.reader(f)
-    keypoint_classifier_labels = [
-        row[0] for row in keypoint_classifier_labels
-    ]
-with open(
-        'webcam_app/model/point_history_classifier/point_history_classifier_label.csv',encoding='utf-8-sig') as f:
-    point_history_classifier_labels = csv.reader(f)
-    point_history_classifier_labels = [
-        row[0] for row in point_history_classifier_labels
-    ]
+# # Labels
+# with open('webcam_app/model/keypoint_classifier/keypoint_classifier_label.csv',encoding='utf-8-sig') as f:
+#     keypoint_classifier_labels = csv.reader(f)
+#     keypoint_classifier_labels = [
+#         row[0] for row in keypoint_classifier_labels
+#     ]
+# with open(
+#         'webcam_app/model/point_history_classifier/point_history_classifier_label.csv',encoding='utf-8-sig') as f:
+#     point_history_classifier_labels = csv.reader(f)
+#     point_history_classifier_labels = [
+#         row[0] for row in point_history_classifier_labels
+#     ]
 
 
-# # Coordinate history
-history_length = 16
-point_history = deque(maxlen=history_length)
+# # # Coordinate history
+# history_length = 16
+# point_history = deque(maxlen=history_length)
 
 server_port = 23000
 
-use_socket = True
+use_socket = False
 
 def send_cmd(sock,cmd):
     sock.send(str(cmd).encode())
@@ -99,9 +142,10 @@ def socket_setup():
     listen_sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     listen_sock.bind(("0.0.0.0",server_port))
     listen_sock.listen(10)
-    (comm,addr) = listen_sock.accept()
-    sock = comm
-    return comm
+    while True:
+        (comm,addr) = listen_sock.accept()
+        sock = comm
+    
 
 def setup():
     
@@ -114,149 +158,140 @@ setup()
 
 
 
-def main(image):
-    global mode
 
-    image = cv.flip(image, 1)  # Mirror display
-    debug_image = copy.deepcopy(image)
+# def main(image):
+#     global mode
 
-    # Detection implementation
-    image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
-    image.flags.writeable = False
-    results = hands.process(image)
-    image.flags.writeable = True
+#     image = cv.flip(image, 1)  # Mirror display
+#     debug_image = copy.deepcopy(image)
 
-    if results.multi_hand_landmarks is not None:
-        for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
-                                                results.multi_handedness):
-            # Bounding box calculation
-            brect = calc_bounding_rect(debug_image, hand_landmarks)
-            # Landmark calculation
-            landmark_list = calc_landmark_list(debug_image, hand_landmarks)
+#     # Detection implementation
+#     image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+#     image.flags.writeable = False
+#     results = hands.process(image)
+#     image.flags.writeable = True
 
-            # Conversion to relative coordinates / normalized coordinates
-            pre_processed_landmark_list = pre_process_landmark(
-                landmark_list)
-            pre_processed_point_history_list = pre_process_point_history(
-                debug_image, point_history)
-            # # Write to the dataset file
-            # logging_csv(number, mode, pre_processed_landmark_list,
-            #             pre_processed_point_history_list)
+#     if results.multi_hand_landmarks is not None:
+#         for hand_landmarks, handedness in zip(results.multi_hand_landmarks,
+#                                                 results.multi_handedness):
+#             # Bounding box calculation
+#             brect = calc_bounding_rect(debug_image, hand_landmarks)
+#             # Landmark calculation
+#             landmark_list = calc_landmark_list(debug_image, hand_landmarks)
 
-            # Hand sign classification
-            hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
-            print(hand_sign_id)
-            if use_socket:
-                send_cmd(sock, hand_sign_id)
+#             # Conversion to relative coordinates / normalized coordinates
+#             pre_processed_landmark_list = pre_process_landmark(
+#                 landmark_list)
+#             pre_processed_point_history_list = pre_process_point_history(
+#                 debug_image, point_history)
+#             # # Write to the dataset file
+#             # logging_csv(number, mode, pre_processed_landmark_list,
+#             #             pre_processed_point_history_list)
 
-            # Drawing part
-            # debug_image = draw_bounding_rect(use_brect, debug_image, brect)
-            # debug_image = draw_landmarks(debug_image, landmark_list)
-            # debug_image = draw_info_text(
-            #     debug_image,
-            #     brect,
-            #     handedness,
-            #     keypoint_classifier_labels[hand_sign_id],
-            # )
-    else:
-        point_history.append([0, 0])
+#             # Hand sign classification
+#             hand_sign_id = keypoint_classifier(pre_processed_landmark_list)
+#             print(hand_sign_id)
+#             if use_socket:
+#                 send_cmd(sock, hand_sign_id)
 
-    # debug_image = draw_info(debug_image, fps, mode, number)
+#             # Drawing part
+#             # debug_image = draw_bounding_rect(use_brect, debug_image, brect)
+#             # debug_image = draw_landmarks(debug_image, landmark_list)
+#             # debug_image = draw_info_text(
+#             #     debug_image,
+#             #     brect,
+#             #     handedness,
+#             #     keypoint_classifier_labels[hand_sign_id],
+#             # )
+#     else:
+#         point_history.append([0, 0])
 
-
-
-def select_mode(key, mode):
-    number = -1
-    if 48 <= key <= 57:  # 0 ~ 9
-        number = key - 48
-    if key == 110:  # n
-        mode = 0
-    
-    return number, mode
+#     # debug_image = draw_info(debug_image, fps, mode, number)
 
 
-def calc_bounding_rect(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
 
-    landmark_array = np.empty((0, 2), int)
+# def calc_bounding_rect(image, landmarks):
+#     image_width, image_height = image.shape[1], image.shape[0]
 
-    for _, landmark in enumerate(landmarks.landmark):
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
+#     landmark_array = np.empty((0, 2), int)
 
-        landmark_point = [np.array((landmark_x, landmark_y))]
+#     for _, landmark in enumerate(landmarks.landmark):
+#         landmark_x = min(int(landmark.x * image_width), image_width - 1)
+#         landmark_y = min(int(landmark.y * image_height), image_height - 1)
 
-        landmark_array = np.append(landmark_array, landmark_point, axis=0)
+#         landmark_point = [np.array((landmark_x, landmark_y))]
 
-    x, y, w, h = cv.boundingRect(landmark_array)
+#         landmark_array = np.append(landmark_array, landmark_point, axis=0)
 
-    return [x, y, x + w, y + h]
+#     x, y, w, h = cv.boundingRect(landmark_array)
 
-
-def calc_landmark_list(image, landmarks):
-    image_width, image_height = image.shape[1], image.shape[0]
-
-    landmark_point = []
-
-    # Keypoint
-    for _, landmark in enumerate(landmarks.landmark):
-        landmark_x = min(int(landmark.x * image_width), image_width - 1)
-        landmark_y = min(int(landmark.y * image_height), image_height - 1)
-        # landmark_z = landmark.z
-
-        landmark_point.append([landmark_x, landmark_y])
-
-    return landmark_point
+#     return [x, y, x + w, y + h]
 
 
-def pre_process_landmark(landmark_list):
-    temp_landmark_list = copy.deepcopy(landmark_list)
+# def calc_landmark_list(image, landmarks):
+#     image_width, image_height = image.shape[1], image.shape[0]
 
-    # Convert to relative coordinates
-    base_x, base_y = 0, 0
-    for index, landmark_point in enumerate(temp_landmark_list):
-        if index == 0:
-            base_x, base_y = landmark_point[0], landmark_point[1]
+#     landmark_point = []
 
-        temp_landmark_list[index][0] = temp_landmark_list[index][0] - base_x
-        temp_landmark_list[index][1] = temp_landmark_list[index][1] - base_y
+#     # Keypoint
+#     for _, landmark in enumerate(landmarks.landmark):
+#         landmark_x = min(int(landmark.x * image_width), image_width - 1)
+#         landmark_y = min(int(landmark.y * image_height), image_height - 1)
+#         # landmark_z = landmark.z
 
-    # Convert to a one-dimensional list
-    temp_landmark_list = list(
-        itertools.chain.from_iterable(temp_landmark_list))
+#         landmark_point.append([landmark_x, landmark_y])
 
-    # Normalization
-    max_value = max(list(map(abs, temp_landmark_list)))
-
-    def normalize_(n):
-        return n / max_value
-
-    temp_landmark_list = list(map(normalize_, temp_landmark_list))
-
-    return temp_landmark_list
+#     return landmark_point
 
 
-def pre_process_point_history(image, point_history):
-    image_width, image_height = image.shape[1], image.shape[0]
+# def pre_process_landmark(landmark_list):
+#     temp_landmark_list = copy.deepcopy(landmark_list)
 
-    temp_point_history = copy.deepcopy(point_history)
+#     # Convert to relative coordinates
+#     base_x, base_y = 0, 0
+#     for index, landmark_point in enumerate(temp_landmark_list):
+#         if index == 0:
+#             base_x, base_y = landmark_point[0], landmark_point[1]
 
-    # Convert to relative coordinates
-    base_x, base_y = 0, 0
-    for index, point in enumerate(temp_point_history):
-        if index == 0:
-            base_x, base_y = point[0], point[1]
+#         temp_landmark_list[index][0] = temp_landmark_list[index][0] - base_x
+#         temp_landmark_list[index][1] = temp_landmark_list[index][1] - base_y
 
-        temp_point_history[index][0] = (temp_point_history[index][0] -
-                                        base_x) / image_width
-        temp_point_history[index][1] = (temp_point_history[index][1] -
-                                        base_y) / image_height
+#     # Convert to a one-dimensional list
+#     temp_landmark_list = list(
+#         itertools.chain.from_iterable(temp_landmark_list))
 
-    # Convert to a one-dimensional list
-    temp_point_history = list(
-        itertools.chain.from_iterable(temp_point_history))
+#     # Normalization
+#     max_value = max(list(map(abs, temp_landmark_list)))
 
-    return temp_point_history
+#     def normalize_(n):
+#         return n / max_value
+
+#     temp_landmark_list = list(map(normalize_, temp_landmark_list))
+
+#     return temp_landmark_list
+
+
+# def pre_process_point_history(image, point_history):
+#     image_width, image_height = image.shape[1], image.shape[0]
+
+#     temp_point_history = copy.deepcopy(point_history)
+
+#     # Convert to relative coordinates
+#     base_x, base_y = 0, 0
+#     for index, point in enumerate(temp_point_history):
+#         if index == 0:
+#             base_x, base_y = point[0], point[1]
+
+#         temp_point_history[index][0] = (temp_point_history[index][0] -
+#                                         base_x) / image_width
+#         temp_point_history[index][1] = (temp_point_history[index][1] -
+#                                         base_y) / image_height
+
+#     # Convert to a one-dimensional list
+#     temp_point_history = list(
+#         itertools.chain.from_iterable(temp_point_history))
+
+#     return temp_point_history
 
 
 # def logging_csv(number, mode, landmark_list, point_history_list):
