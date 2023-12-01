@@ -111,7 +111,7 @@ def processHand(image):
             yf = np.interp(yf,(ymin,ymax),(0,300))
             
             speed = np.hypot(xt-xf,yt-yf)  # goes atmax to 300
-            # print(speed)
+            print(speed)
             # print(preprocessed_lm)
         else:
             preProcessedLandmark = detector.preprocessLandmark(hand['landmarks'])
