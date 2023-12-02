@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <body>
 <div style="display: grid; grid-template-columns: 1fr 1fr;">
@@ -6,7 +6,8 @@
 
     <div>
     <h1>Webcam Stream</h1>
-    <video id="webcam" autoplay></video>
+    <video id="webcam" autopla        const video = document.getElementById('webcam');
+    y></video>
     <script>
         const video = document.getElementById('webcam');
 
@@ -65,4 +66,142 @@
 </div>
 
     </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime location tracker</title>
+
+    <!-- leaflet css -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .webcam-container {
+            padding: 20px;
+        }
+
+        .webcam-container h1 {
+            margin-bottom: 10px;
+        }
+
+        .webcam-container video {
+            width: 100%;
+            height: auto;
+        }
+
+        #map {
+            width: 100%;
+            height: 50vh; /* Adjust the height as needed */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="webcam-container">
+        <h1>Webcam Stream</h1>
+        <video id="webcam" autoplay></video>
+        <script>
+            const video = document.getElementById('webcam');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    video.srcObject = stream;
+                    const captureAndSendImage = () => {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                        canvas.toBlob((blob) => {
+                            const formData = new FormData();
+                            formData.append('image', blob, 'webcam_image.jpeg');
+                            fetch('/api/webcam-image/', {
+                                method: 'POST',
+                                body: formData,
+                            })
+                                .then(response => {
+                                    if (response.ok) {
+                                        console.log('Image sent successfully.');
+                                    } else {
+                                        console.error('Error sending image. Status:', response.status);
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Error sending image:', error);
+                                });
+                        }, 'image/jpeg');
+                    };
+                    const captureInterval = 100;
+                    setInterval(captureAndSendImage, captureInterval);
+                })
+                .catch((error) => {
+                    console.error('Error accessing webcam:', error);
+                });
+        </script>
+    </div>
+
+    <div class="webcam-container">
+        <h1>Buggy Video Live Stream</h1>
+        <img src="{% url 'buggy_feed' %}">
+    </div>
+
+    <div id="map"></div>
+
+    <!-- leaflet js -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([14.0860746, 100.608406], 6);
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        osm.addTo(map);
+        if (!navigator.geolocation) {
+            console.log("Your browser doesn't support geolocation feature!")
+        } else {
+            setInterval(() => {
+                navigator.geolocation.getCurrentPosition(getPosition)
+            }, 5000);
+        }
+
+        var marker, circle;
+
+        function getPosition(position) {
+            var lat = position.coords.latitude
+            var long = position.coords.longitude
+            var accuracy = position.coords.accuracy
+
+            if (marker) {
+                map.removeLayer(marker)
+            }
+
+            if (circle) {
+                map.removeLayer(circle)
+            }
+
+            marker = L.marker([lat, long])
+            circle = L.circle([lat, long], { radius: accuracy })
+
+            var featureGroup = L.featureGroup([marker, circle]).addTo(map)
+
+            map.fitBounds(featureGroup.getBounds())
+
+            console.log("Your coordinate is: Lat: " + lat + " Long: " + long + " Accuracy: " + accuracy)
+        }
+    </script>
+</body>
+
 </html>
+
+
+
+
+
