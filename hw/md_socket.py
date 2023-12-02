@@ -6,7 +6,7 @@ import buggyController
 
 
 port = 23000
-ip = "127.0.0.1"
+ip = "192.168.174.214"
 use_socket = True
 is_forward = True
 speed = 0
@@ -41,6 +41,7 @@ def setup():
     global sock
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     sock.connect((ip,port))
+    print("connected to server")
 
 if(use_socket):
     cmd_list = ['Start','NULL','Left','Right','Mark','Pick','Drop']
@@ -77,49 +78,51 @@ if(use_socket):
         
         
         print(cmd)
-        is_forward, speed, sign = cmd.split(" ")
-        
-        if(is_forward[0]=='T'):
-            is_forward=True
-        else:
-            is_forward=False
-        
-        speed = float(speed)
-        cmd = int(sign)
-        if(speed < 60):
-            speed = 0
-        else:
-            speed = np.interp(speed,(50,300),(50,100))
-            speed = speed//1
-        
-        if(speed==0 and cmd == 0):
-            buggyController.stop()
-            prev_cmd=10
-            continue
-
-        cmd = int(cmd)
-        if(cmd==0):
-            buggyController.setSpeed(speed)
-            if prev_cmd == 10:
-                if is_forward:
-                    buggyController.forward()
-                else:
-                    buggyController.backward()
-        
-        if(cmd!=prev_cmd and cmd>=1 and cmd<len(cmd_list)):
-            prev_cmd = cmd
-            cmd = cmd_list[cmd]     #['Start','NULL','Left','Right','Mark','Pick','Drop']
+        cmds = cmd.split('\n')[:-1]
+        for command in cmds:
+            is_forward, speed, sign = command.split(",")
             
-            if cmd=="Left":
-                buggyController.left()
-            elif cmd=="Right":
-                buggyController.right()
-            elif cmd=="Mark":
-                buggyController.mark()
-            elif cmd=="Pick":
-                buggyController.pick()
-            elif cmd=="Drop":
-                buggyController.drop()
+            if(is_forward[0]=='T'):
+                is_forward=True
+            else:
+                is_forward=False
+            
+            speed = float(speed)
+            cmd = int(sign)
+            if(speed < 60):
+                speed = 0
+            else:
+                speed = np.interp(speed,(50,300),(50,100))
+                speed = speed//1
+            
+            if(speed==0 and cmd == 0):
+                buggyController.stop()
+                prev_cmd=10
+                continue
+
+            cmd = int(cmd)
+            if(cmd==0):
+                buggyController.setSpeed(speed)
+                if prev_cmd == 10:
+                    if is_forward:
+                        buggyController.forward()
+                    else:
+                        buggyController.backward()
+            
+            if(cmd!=prev_cmd and cmd>=1 and cmd<len(cmd_list)):
+                prev_cmd = cmd
+                cmd = cmd_list[cmd]     #['Start','NULL','Left','Right','Mark','Pick','Drop']
+                
+                if cmd=="Left":
+                    buggyController.left()
+                elif cmd=="Right":
+                    buggyController.right()
+                elif cmd=="Mark":
+                    buggyController.mark()
+                elif cmd=="Pick":
+                    buggyController.pick()
+                elif cmd=="Drop":
+                    buggyController.drop()
         
 else:
     print("The default speed & direction of motor is LOW & Forward.....")

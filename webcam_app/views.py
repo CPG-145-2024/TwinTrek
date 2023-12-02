@@ -118,7 +118,7 @@ def processHand(image):
             preProcessedLandmark = detector.preprocessLandmark(hand['landmarks'])
             signId = kpc(preProcessedLandmark)
             
-            message = str(forward) + " " + str(speed) + " " + str(signId)
+            message = str(forward) + "," + str(speed) + "," + str(signId) + '\n'
             send_cmd(message)
             # print(labels[signId])
             # if(signId==0):
