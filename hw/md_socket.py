@@ -1,9 +1,8 @@
-import RPi.GPIO as GPIO          
-from time import sleep
 import socket
 import threading
 import time
 import numpy as np
+from .buggy_controller import BuggyConntroller
 
 
 port = 23000
@@ -22,26 +21,9 @@ in3 = 6
 in4 = 5
 enb = 0
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(in1,GPIO.OUT)
-GPIO.setup(in2,GPIO.OUT)
-GPIO.setup(en,GPIO.OUT)
-GPIO.output(in1,GPIO.LOW)
-GPIO.output(in2,GPIO.LOW)
-p=GPIO.PWM(en,1000)
 
-GPIO.setup(in3,GPIO.OUT)
-GPIO.setup(in4,GPIO.OUT)
-GPIO.setup(enb,GPIO.OUT)
-GPIO.output(in3,GPIO.LOW)
-GPIO.output(in4,GPIO.LOW)
-q=GPIO.PWM(enb,1000)
-
-
-
-q.start(25)
-p.start(25)
-print("\n")
+buggyController = BuggyConntroller()
+buggyController.setup(in1,in2,en,in3,in4,enb)
 
 
 start_time = -1
@@ -50,50 +32,9 @@ stop_thread = False
 def timeout(sec):
     while(time.time()-start_time<sec):
         pass
-    stop()
-
-
-def forward():
-    print("f")
-    GPIO.output(in1,GPIO.HIGH)
-    GPIO.output(in2,GPIO.LOW)
-    GPIO.output(in3,GPIO.HIGH)
-    GPIO.output(in4,GPIO.LOW)
-
-def backward():
-    print("b")
-    GPIO.output(in1,GPIO.LOW)
-    GPIO.output(in2,GPIO.HIGH)
-    GPIO.output(in3,GPIO.LOW)
-    GPIO.output(in4,GPIO.HIGH)
-
-def left():
-    print("l")
-    pass
-
-def right():
-    print("r")
-    pass
-
-def stop():
     global prev_cmd
     prev_cmd = 10
-    print("s");
-    GPIO.output(in1,GPIO.LOW)
-    GPIO.output(in2,GPIO.LOW)
-    GPIO.output(in3,GPIO.LOW)
-    GPIO.output(in4,GPIO.LOW)
-
-
-def setSpeed(s):
-    print("set: ",s)
-    p.ChangeDutyCycle(s)
-    q.ChangeDutyCycle(s)
-    
-        
-def cleanup():
-    print("c")
-    GPIO.cleanup()
+    buggyController.stop()
 
 
 def setup():
@@ -152,33 +93,33 @@ if(use_socket):
             speed = speed//1
         
         if(speed==0 and cmd == 0):
-            stop()
+            buggyController.stop()
             prev_cmd=10
             continue
 
         cmd = int(cmd)
         if(cmd==0):
-            setSpeed(speed)
+            buggyController.setSpeed(speed)
             if prev_cmd == 10:
                 if is_forward:
-                    forward()
+                    buggyController.forward()
                 else:
-                    backward()
+                    buggyController.backward()
         
         if(cmd!=prev_cmd and cmd>=1 and cmd<len(cmd_list)):
             prev_cmd = cmd
             cmd = cmd_list[cmd]     #['Start','NULL','Left','Right','Mark','Pick','Drop']
             
             if cmd=="Left":
-                left()
+                buggyController.left()
             elif cmd=="Right":
-                right()
+                buggyController.right()
             elif cmd=="Mark":
-                print("Mark")
+                buggyController.mark()
             elif cmd=="Pick":
-                print("Pick")
+                buggyController.pick()
             elif cmd=="Drop":
-                print("Drop")
+                buggyController.drop()
         
 else:
     print("The default speed & direction of motor is LOW & Forward.....")
@@ -192,50 +133,53 @@ else:
         if x=='r':
             print("run")
             if(temp1==1):
-                forward()
+                buggyController.forward()
                 print("forward")
                 x='z'
             else:
-                backward()
+                buggyController.backward()
                 print("backward")
                 x='z'
 
 
         elif x=='s':
             print("stop")
-            stop()
+            buggyController.stop()
             x='z'
 
         elif x=='f':
             print("forward")
-            forward()
+            buggyController.forward()
             temp1=1
             x='z'
 
         elif x=='b':
             print("backward")
-            backward()
+            buggyController.backward()
             temp1=0
             x='z'
 
         elif x=='l':
             print("low")
-            speed(x)
+            # speed(x)
+            buggyController.setSpeed(50)
             x='z'
 
         elif x=='m':
             print("medium")
-            speed(x)
+            buggyController.setSpeed(60)
+            # speed(x)
             x='z'
 
         elif x=='h':
             print("high")
-            speed(x)
+            buggyController.setSpeed(70)
+            # speed(x)
             x='z'
         
         
         elif x=='e':
-            cleanup()
+            buggyController.cleanup()
             print("GPIO Clean up")
             break
         
