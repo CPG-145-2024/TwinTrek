@@ -21,9 +21,9 @@ detector = HandDetector() #detector obj
 forward = False # is going forward or backward
 speed = 0   # speed of buggy
 
-labels = ['Start','NULL','Left','Right','Mark','Pick','Drop']   #labels of gestures
+labels = ['Start','NULL','Left','Right','Mark','Pick','Drop']   # labels of gestures
 
-kpc = KeyPointClassifier()  #gesture classification object
+kpc = KeyPointClassifier()  # gesture classification object
 
 
 # socket setup
@@ -122,5 +122,3 @@ def processHand(image):
             # print(labels[signId])
             # if(signId==0):
             #     print(forward,speed)
-
-

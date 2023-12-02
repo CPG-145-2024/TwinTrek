@@ -1,4 +1,4 @@
-# import RPi.GPIO as GPIO          
+import RPi.GPIO as GPIO          
 from time import sleep
 import socket
 import threading
@@ -22,25 +22,25 @@ in3 = 6
 in4 = 5
 enb = 0
 
-# # GPIO.setmode(GPIO.BCM)
-# # GPIO.setup(in1,GPIO.OUT)
-# # GPIO.setup(in2,GPIO.OUT)
-# # GPIO.setup(en,GPIO.OUT)
-# # GPIO.output(in1,GPIO.LOW)
-# # GPIO.output(in2,GPIO.LOW)
-# p=GPIO.PWM(en,1000)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(in1,GPIO.OUT)
+GPIO.setup(in2,GPIO.OUT)
+GPIO.setup(en,GPIO.OUT)
+GPIO.output(in1,GPIO.LOW)
+GPIO.output(in2,GPIO.LOW)
+p=GPIO.PWM(en,1000)
 
-# # GPIO.setup(in3,GPIO.OUT)
-# # GPIO.setup(in4,GPIO.OUT)
-# # GPIO.setup(enb,GPIO.OUT)
-# # GPIO.output(in3,GPIO.LOW)
-# # GPIO.output(in4,GPIO.LOW)
-# q=GPIO.PWM(enb,1000)
+GPIO.setup(in3,GPIO.OUT)
+GPIO.setup(in4,GPIO.OUT)
+GPIO.setup(enb,GPIO.OUT)
+GPIO.output(in3,GPIO.LOW)
+GPIO.output(in4,GPIO.LOW)
+q=GPIO.PWM(enb,1000)
 
 
 
-# q.start(25)
-# p.start(25)
+q.start(25)
+p.start(25)
 print("\n")
 
 
@@ -55,17 +55,17 @@ def timeout(sec):
 
 def forward():
     print("f")
-    # # GPIO.output(in1,GPIO.HIGH)
-    # # GPIO.output(in2,GPIO.LOW)
-    # # GPIO.output(in3,GPIO.HIGH)
-    # # GPIO.output(in4,GPIO.LOW)
+    GPIO.output(in1,GPIO.HIGH)
+    GPIO.output(in2,GPIO.LOW)
+    GPIO.output(in3,GPIO.HIGH)
+    GPIO.output(in4,GPIO.LOW)
 
 def backward():
     print("b")
-    # # GPIO.output(in1,GPIO.LOW)
-    # # GPIO.output(in2,GPIO.HIGH)
-    # # GPIO.output(in3,GPIO.LOW)
-    # # GPIO.output(in4,GPIO.HIGH)
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.HIGH)
+    GPIO.output(in3,GPIO.LOW)
+    GPIO.output(in4,GPIO.HIGH)
 
 def left():
     print("l")
@@ -79,21 +79,21 @@ def stop():
     global prev_cmd
     prev_cmd = 10
     print("s");
-    # # GPIO.output(in1,GPIO.LOW)
-    # # GPIO.output(in2,GPIO.LOW)
-    # # GPIO.output(in3,GPIO.LOW)
-    # # GPIO.output(in4,GPIO.LOW)
+    GPIO.output(in1,GPIO.LOW)
+    GPIO.output(in2,GPIO.LOW)
+    GPIO.output(in3,GPIO.LOW)
+    GPIO.output(in4,GPIO.LOW)
 
 
 def setSpeed(s):
     print("set: ",s)
-    # p.ChangeDutyCycle(s)
-    # q.ChangeDutyCycle(s)
+    p.ChangeDutyCycle(s)
+    q.ChangeDutyCycle(s)
     
         
 def cleanup():
     print("c")
-    # GPIO.cleanup()
+    GPIO.cleanup()
 
 
 def setup():
@@ -236,7 +236,7 @@ else:
         
         elif x=='e':
             cleanup()
-            # print("GPIO Clean up")
+            print("GPIO Clean up")
             break
         
         else:
