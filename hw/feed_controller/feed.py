@@ -1,15 +1,15 @@
 import socket
 import cv2
 import time
-from .human_detection.humanDetector import HumanDetector
+import humanDetector
 
 
-server_ip = "192.168.7.214"
+server_ip = "127.0.0.1"
 server_port=22000
 
 
 cam = cv2.VideoCapture(0)
-humanDetector = HumanDetector()
+humanDetector = humanDetector.HumanDetector()
 
 
 while True:
@@ -22,7 +22,7 @@ while True:
         print("unable to capture image")
         continue
     
-    frame = humanDetector.drawHuman()
+    frame = humanDetector.drawHuman(frame)
     
     img = cv2.imencode('.jpeg',frame)[1]
 
@@ -31,7 +31,7 @@ while True:
 
     sock.send(img)
 
-    time.sleep(0.033)       # 30 fps
+    # time.sleep(0.033)       # 30 fps
 
     sock.close()
 
