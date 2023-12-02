@@ -37,10 +37,20 @@ def timeout(sec):
     buggyController.stop()
 
 
+def connect():
+    global sock
+    try:
+        sock.connect((ip,port))
+        return 1
+    except:
+        # print("unable to connect")
+        return 0
+
 def setup():
     global sock
     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    sock.connect((ip,port))
+    while(not connect()):
+        time.sleep(1)
     print("connected to server")
 
 if(use_socket):
@@ -66,6 +76,7 @@ if(use_socket):
             cmd = sock.recv(1024).decode()
             
         while(len(cmd)==0):
+            print("zero len")
             sock.close()
             setup()
             cmd = sock.recv(1024).decode()

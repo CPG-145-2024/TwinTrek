@@ -7,14 +7,29 @@ import humanDetector
 server_ip = "192.168.174.214"
 server_port=22000
 
+def connect():
+    global sock
+    try:
+        sock.connect((server_ip,server_port))
+        return 1
+    except:
+        
+        return 0
+    
+def setup():
+    global sock
+    sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    while(not connect()):
+        time.sleep(0.5)
+        pass
 
 cam = cv2.VideoCapture(0)
 humanDetector = humanDetector.HumanDetector()
 
 
 while True:
-    sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    sock.connect((server_ip,server_port))
+    
+    setup()
 
     ret ,frame = cam.read()
     
@@ -28,11 +43,12 @@ while True:
 
 
     # print("Sent image to server")
-
-    sock.send(img)
+    try:
+        sock.send(img)
+    except:
+        continue
 
     # time.sleep(0.033)       # 30 fps
 
-    sock.close()
 
 
