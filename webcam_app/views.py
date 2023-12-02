@@ -37,14 +37,15 @@ def send_cmd(cmd):
         sock.send(cmd.encode())
     except:
         print("Connection with buggy lost")
-        sock.close()
+        if(sock is not None):
+            sock.close()
 
     return
 
 
 def socket_setup(): 
     global sock
-    print("here")
+    # print("here")
     listen_sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     listen_sock.bind(("0.0.0.0",server_port))
     listen_sock.listen(10)

@@ -4,7 +4,7 @@ import time
 import humanDetector
 
 
-server_ip = "127.0.0.1"
+server_ip = "192.168.174.214"
 server_port=22000
 
 

@@ -35,7 +35,8 @@ class HumanDetector:
                 # confidence
                 confidence = math.ceil((box.conf[0]*100))/100
                 obj = self.classNames[int(box.cls[0])]
-                if(confidence>=0.6 and obj == 'person'):
+                
+                if(confidence>=0.5 and obj == 'person'):
                     cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 3)
                     # object details
                     org = [x1, y1]

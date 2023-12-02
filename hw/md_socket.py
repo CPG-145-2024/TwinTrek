@@ -2,7 +2,7 @@ import socket
 import threading
 import time
 import numpy as np
-from .buggy_controller import BuggyConntroller
+import buggyController
 
 
 port = 23000
@@ -22,7 +22,7 @@ in4 = 5
 enb = 0
 
 
-buggyController = BuggyConntroller()
+buggyController = buggyController.BuggyConntroller()
 buggyController.setup(in1,in2,en,in3,in4,enb)
 
 
