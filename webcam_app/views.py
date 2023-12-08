@@ -34,6 +34,8 @@ latitude = 30.352899
 longitude = 78.386324
 smokeLevel =0
 
+buggyCam = BuggyCam()
+
 # socket setup
 server_port = 23000
 sock = None
@@ -104,8 +106,7 @@ def getSmokeLevel(request):
 @api_view(['GET'])
 def get_gas_sensor_value(request):
     global smokeLevel
-    # Replace this with your actual logic to get the gas sensor value
-     # Example: Generate a random value between 300 and 400
+
     return JsonResponse({'gas_value': smokeLevel})
 
 def send_cmd(cmd):
@@ -157,7 +158,7 @@ def gen(camera):
 				b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 def buggy_feed(request):
-	return StreamingHttpResponse(gen(BuggyCam()),
+	return StreamingHttpResponse(gen(buggyCam),
 					content_type='multipart/x-mixed-replace; boundary=frame')
 
 
