@@ -1,13 +1,13 @@
 import math
 import time
 from gpiozero  import DistanceSensor
-from buggyController import BuggyConntroller
-# ultrasonic = DistanceSensor(echo=17, trigger=4)
+# from buggyController import BuggyConntroller
+ultrasonic = DistanceSensor(echo=18, trigger=24)
 # ultrasonic.threshold_distance = 0.2 # in meters
 
-bc = BuggyConntroller()
-Start_c=bc.getLatLong()
-# Start_c=[0,0]
+# bc = BuggyConntroller()
+# Start_c=bc.getLatLong()
+Start_c=[0,0]
 End_c=[0,20]
 
 def navigate(Start_c,End_c):
@@ -16,13 +16,13 @@ def navigate(Start_c,End_c):
 
     while True:
         
-        Start_c = bc.getLatLong()
+        # Start_c = bc.getLatLong()
         Starting_Coordinate =[ math.radians(Start_c[0]), math.radians(Start_c[1])]
         # get latitude and longitude from gps
-
+        print(ultrasonic.distance)
         # ultrasonic.wait_for_in_range()
         # if(ultrasonic.distance<0.2):
-        #     print("Stop")
+            # print("Stop")
         
             # rotate buggy right while ultrasonic.distance<0.2
             # move buggy in that direction for 5 seconds

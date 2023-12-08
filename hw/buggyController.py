@@ -1,5 +1,5 @@
-# import RPi.GPIO as GPIO 
-# import py_qmc5883l
+import RPi.GPIO as GPIO 
+import py_qmc5883l
 
 import time
  
