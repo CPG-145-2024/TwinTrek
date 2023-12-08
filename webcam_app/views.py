@@ -32,6 +32,7 @@ kpc = KeyPointClassifier()  # gesture classification object
 
 latitude = 30.352899
 longitude = 78.386324
+smokeLevel =0
 
 # socket setup
 server_port = 23000
