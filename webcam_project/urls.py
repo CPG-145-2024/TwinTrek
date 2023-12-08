@@ -28,7 +28,9 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='webcam.html'), name='webcam'),
     path('buggy_feed/',views.buggy_feed,name='buggy_feed'),
     path('api/get-coordinates/', get_coordinates, name='get_coordinates'),
-        path('api/post-coordinates/', post_coordinates, name='post-coordinates'),
+    path('api/post-coordinates/', post_coordinates, name='post-coordinates'),
+    path('api/get-buggy-coordinates/',views.getBuggyPosition,name = 'get-buggy-coordinates'),
+    path('api/get-smoke-level/',views.getSmokeLevel,name = 'get-smoke-level'),
 
 
 ]

@@ -75,3 +75,8 @@ class BuggyConntroller(object):
         # GPIO.output(in4,GPIO.LOW)
     def getLatLong(self):
         return (30.7,64.1)
+    
+    def getSmokeLevel(self):
+        return 1
+    
+    

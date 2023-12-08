@@ -74,6 +74,32 @@ def post_coordinates(request):
         return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+    
+@api_view(['POST'])    
+def getBuggyPosition(request):
+    try:
+        data = request.data
+        global latitude, longitude
+        latitude = float(data.get('latitude'))
+        longitude = float(data.get('longitude'))
+        
+        print(latitude,longitude)
+        return JsonResponse({'status' : 'success'})
+    except:
+        return JsonResponse({'status': 'error'})
+
+
+@api_view(['POST'])    
+def getSmokeLevel(request):
+    try:
+        data = request.data
+        global smokeLevel
+        smokeLevel = float(data.get('smokeLevel'))        
+        print(smokeLevel)
+        return JsonResponse({'status' : 'success'})
+    except:
+        return JsonResponse({'status': 'error'})
 
 def send_cmd(cmd):
     global sock
