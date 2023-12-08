@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realtime location tracker</title>
+
+    <!-- leaflet css -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .webcam-container {
+            padding: 20px;
+        }
+
+        .webcam-container h1 {
+            margin-bottom: 10px;
+        }
+
+        .webcam-container video {
+            width: 100%;
+            height: auto;
+        }
+
+        #map {
+            width: 100%;
+            height: 50vh; /* Adjust the height as needed */
+        }
+
+        #gas-sensor-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #toggle-container {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="toggle-container">
+        <label for="mode-toggle">Manual Mode</label>
+        <input type="checkbox" id="mode-toggle" onchange="toggleMode()">
+    </div>
+
+    <div class="webcam-container">
+        <h1>Webcam Stream</h1>
+        <h2>Not required in automatic mode</h2>
+    </div>
+
+    <div class="webcam-container">
+        <h1>Buggy Video Live Stream</h1>
+        <img src="{% url 'buggy_feed' %}">
+    </div>
+
+
+    <div id="map"></div>
+
+    <div id="gas-sensor-info"></div>
+    <script>
+        function toggleMode() {
+            const toggleCheckbox = document.getElementById('mode-toggle');
+            
+            if (toggleCheckbox.checked) {
+                // Automatic mode, redirect to the automatic mode page
+                window.location.href = '/manual-mode/';
+            } else {
+                // Manual mode, stay on the current page
+                window.location.href = '/';
+            }
+        }
+
+        function updateGasSensorStatus(gasValue) {
+                const statusElement = document.getElementById('gas-sensor-info');
+                if (gasValue > 350) {
+                    statusElement.textContent = 'Smoke Detected';
+                    statusElement.style.color = 'red';  // Optional: Change text color for emphasis
+                } else {
+                    statusElement.textContent = 'Smoke Not Detected';
+                    statusElement.style.color = 'green';  // Optional: Change text color for emphasis
+                }
+            }
+
+        function getGasSensorValue() {
+            // Replace this with your actual API endpoint to get the gas sensor value
+            fetch('/api/get-gas-sensor-value/')
+                .then(response => response.json())
+                .then(data => {
+                    const gasValue = data.gas_value;  // Replace 'gas_value' with the actual key in your JSON response
+                    updateGasSensorStatus(gasValue);
+                })
+                .catch(error => {
+                    console.error('Error fetching gas sensor value:', error);
+                });
+        }
+            // Call getGasSensorValue every 5 seconds
+        setInterval(getGasSensorValue, 5000);
+    </script>
+
+    <!-- leaflet js -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([14.0860746, 100.608406], 6);
+        var osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        });
+        osm.addTo(map);
+    
+        var marker, circle;
+    
+        function getPosition() {
+            fetch('/api/get-coordinates/')
+                .then(response => response.json())
+                .then(data => {
+                    var lat = data.latitude;
+                    var long = data.longitude;
+                    var accuracy = 10;
+    
+                    if (marker) {
+                        // Update existing marker position
+                        marker.setLatLng([lat, long]);
+                        // Update existing circle position
+                        circle.setLatLng([lat, long]);
+                    } else {
+                        // Create marker for the first time
+                        marker = L.marker([lat, long]).addTo(map);
+                        // Create circle for the first time
+                        circle = L.circle([lat, long], {
+                            radius: accuracy
+                        }).addTo(map);
+                    }
+    
+                    map.setView([lat, long]);  // Optionally, you can set the view to the new marker position
+    
+                    console.log("Your coordinate is: Lat: " + lat + " Long: " + long + " Accuracy: " + accuracy);
+                })
+                .catch(error => {
+                    console.error('Error fetching coordinates:', error);
+                });
+        }
+
+        var currentMarker = null;
+
+        function handleMapClick(e) {
+            
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+            // Extract latitude and longitude from the click event
+            var lat = e.latlng.lat;
+            var long = e.latlng.lng;
+
+            currentMarker=L.marker([lat, long], { icon: redMarkerIcon }).addTo(map);
+
+            // Send the coordinates to the API endpoint
+            fetch('/api/post-coordinates/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: lat,
+                    longitude: long,
+                }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Coordinates sent successfully.');
+                } else {
+                    console.error('Error sending coordinates. Status:', response.status);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending coordinates:', error);
+            });
+        }
+
+        var redMarkerIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            tooltipAnchor: [16, -28],
+            shadowSize: [41, 41],
+        });
+
+        // Add click event listener to the map
+        map.on('click', handleMapClick);
+
+    
+        // Call getPosition every 5 seconds
+        setInterval(getPosition, 1000);
+
+    </script>
+</body>
+
+</html>

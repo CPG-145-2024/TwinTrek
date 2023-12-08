@@ -44,10 +44,23 @@
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+
+        #toggle-container {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
     </style>
 </head>
 
 <body>
+    <div id="toggle-container">
+        <label for="mode-toggle">Automatic Mode</label>
+        <input type="checkbox" id="mode-toggle" onchange="toggleMode()">
+    </div>
+
     <div class="webcam-container">
         <h1>Webcam Stream</h1>
         <video id="webcam" autoplay></video>
@@ -101,6 +114,18 @@
 
     <div id="gas-sensor-info"></div>
     <script>
+        function toggleMode() {
+            const toggleCheckbox = document.getElementById('mode-toggle');
+            
+            if (toggleCheckbox.checked) {
+                // Automatic mode, redirect to the automatic mode page
+                window.location.href = '/auto/';
+            } else {
+                // Manual mode, stay on the current page
+                window.location.href = '/';
+            }
+        }
+
         function updateGasSensorStatus(gasValue) {
                 const statusElement = document.getElementById('gas-sensor-info');
                 if (gasValue > 350) {
@@ -170,33 +195,31 @@
                 });
         }
 
+        var currentMarker = null;
+
         function handleMapClick(e) {
-            // Extract latitude and longitude from the click event
+            
             var lat = e.latlng.lat;
             var long = e.latlng.lng;
 
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
+            // Extract latitude and longitude from the click event
+
+            currentMarker=L.marker([lat, long], { icon: redMarkerIcon }).addTo(map);
+
             // Send the coordinates to the API endpoint
-            fetch('/api/post-coordinates/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    latitude: lat,
-                    longitude: long,
-                }),
-            })
-            .then(response => {
-                if (response.ok) {
-                    console.log('Coordinates sent successfully.');
-                } else {
-                    console.error('Error sending coordinates. Status:', response.status);
-                }
-            })
-            .catch(error => {
-                console.error('Error sending coordinates:', error);
-            });
         }
+
+        var redMarkerIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            tooltipAnchor: [16, -28],
+            shadowSize: [41, 41],
+        });
 
         // Add click event listener to the map
         map.on('click', handleMapClick);
