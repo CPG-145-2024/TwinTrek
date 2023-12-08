@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from webcam_app.views import webcam_image_view,get_coordinates # Updated view imports
+from webcam_app.views import webcam_image_view,get_coordinates,post_coordinates # Updated view imports
 from django.conf import settings
 from django.conf.urls.static import static
 from webcam_app import views
@@ -28,6 +28,8 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='webcam.html'), name='webcam'),
     path('buggy_feed/',views.buggy_feed,name='buggy_feed'),
     path('api/get-coordinates/', get_coordinates, name='get_coordinates'),
+        path('api/post-coordinates/', post_coordinates, name='post-coordinates'),
+
 
 ]
 

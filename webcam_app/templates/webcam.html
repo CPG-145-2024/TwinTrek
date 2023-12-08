@@ -128,9 +128,41 @@
                     console.error('Error fetching coordinates:', error);
                 });
         }
+
+        function handleMapClick(e) {
+            // Extract latitude and longitude from the click event
+            var lat = e.latlng.lat;
+            var long = e.latlng.lng;
+
+            // Send the coordinates to the API endpoint
+            fetch('/api/post-coordinates/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: lat,
+                    longitude: long,
+                }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Coordinates sent successfully.');
+                } else {
+                    console.error('Error sending coordinates. Status:', response.status);
+                }
+            })
+            .catch(error => {
+                console.error('Error sending coordinates:', error);
+            });
+        }
+
+        // Add click event listener to the map
+        map.on('click', handleMapClick);
+
     
         // Call getPosition every 5 seconds
-        setInterval(getPosition, 5000);
+        setInterval(getPosition, 1000);
     </script>
 </body>
 

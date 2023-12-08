@@ -15,6 +15,11 @@ import socket
 from django.http.response import StreamingHttpResponse
 from webcam_app.camera import BuggyCam
 import time
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+import json
+
 
 # Global variables
 detector = HandDetector() #detector obj
@@ -49,6 +54,27 @@ def get_coordinates(request):
     }
     return Response(data)
 
+@csrf_exempt
+@require_POST
+def post_coordinates(request):
+    try:
+        data = json.loads(request.body)
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
+
+        # Update global variables with new coordinates
+        global global_latitude, global_longitude
+        global_latitude = latitude
+        global_longitude = longitude
+
+        print("Received coordinates - Latitude:", latitude, "Longitude:", longitude)
+
+        return JsonResponse({'message': 'Coordinates updated successfully.'})
+    except json.JSONDecodeError as e:
+        return JsonResponse({'error': 'Invalid JSON format.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 def send_cmd(cmd):
     global sock
     try:
@@ -78,8 +104,6 @@ def setup():
         threading.Thread(target=socket_setup).start()
 
 setup()
-
-
 
 
 @api_view(['POST'])
