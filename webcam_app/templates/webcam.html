@@ -195,19 +195,13 @@
                 });
         }
 
-        var currentMarker = null;
 
         function handleMapClick(e) {
             
             var lat = e.latlng.lat;
             var long = e.latlng.lng;
 
-            if (currentMarker) {
-                map.removeLayer(currentMarker);
-            }
-            // Extract latitude and longitude from the click event
-
-            currentMarker=L.marker([lat, long], { icon: redMarkerIcon }).addTo(map);
+            L.marker([lat, long], { icon: redMarkerIcon }).addTo(map);
 
             // Send the coordinates to the API endpoint
         }

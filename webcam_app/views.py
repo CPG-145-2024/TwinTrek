@@ -40,15 +40,11 @@ buggyCam = BuggyCam()
 server_port = 23000
 sock = None
 use_socket = True
+busy_sock = False
 
 @api_view(['GET'])
 def get_coordinates(request):
     global latitude, longitude
-
-    # Your logic to update latitude and longitude (replace with your implementation)
-    # For example, you might update these values from a sensor or database
-    latitude += 0.1
-    longitude += 0.2
 
     data = {
         'latitude': latitude,
@@ -63,11 +59,16 @@ def post_coordinates(request):
         data = json.loads(request.body)
         latitude = data.get('latitude')
         longitude = data.get('longitude')
-
-        # Update global variables with new coordinates
-        global global_latitude, global_longitude
-        global_latitude = latitude
-        global_longitude = longitude
+        
+        message = "Destination," + str(latitude) + "," + str(longitude) + "\n"
+        
+        while busy_sock: 
+            pass
+        busy_sock = True
+        send_cmd(message)
+        busy_sock = False
+        
+        
 
         print("Received coordinates - Latitude:", latitude, "Longitude:", longitude)
 
@@ -166,6 +167,7 @@ def processHand(image):
     # img = cv2.flip(image,1)
     global forward
     global speed
+    global busy_sock
 
     hands_info = detector.getHandInfo(image)
 
@@ -194,7 +196,12 @@ def processHand(image):
             signId = kpc(preProcessedLandmark)
             
             message = str(forward) + "," + str(speed) + "," + str(signId) + '\n'
+            
+            while busy_sock: 
+                pass
+            busy_sock = True
             send_cmd(message)
+            busy_sock = False
             # print(labels[signId])
             # if(signId==0):
             #     print(forward,speed)

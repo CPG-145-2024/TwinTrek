@@ -29,6 +29,12 @@ buggyController.setup(in1,in2,en,in3,in4,enb)
 start_time = -1
 stop_thread = False
 
+def setDestination(command):
+    _,lat,long = command.split[',']
+    lat = float(lat)
+    long = float(long)
+    buggyController.setDestination(lat,long)
+
 def timeout(sec):
     while(time.time()-start_time<sec):
         pass
@@ -91,6 +97,9 @@ if(use_socket):
         print(cmd)
         cmds = cmd.split('\n')[:-1]
         for command in cmds:
+            if(command[0]=='D'):
+                setDestination(command)
+                continue
             is_forward, speed, sign = command.split(",")
             
             if(is_forward[0]=='T'):
