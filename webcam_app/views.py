@@ -14,6 +14,7 @@ import socket
 
 from django.http.response import StreamingHttpResponse
 from webcam_app.camera import BuggyCam
+import time
 
 # Global variables
 detector = HandDetector() #detector obj
@@ -25,11 +26,28 @@ labels = ['Start','NULL','Left','Right','Mark','Pick','Drop']   # labels of gest
 
 kpc = KeyPointClassifier()  # gesture classification object
 
+latitude = 30.352899
+longitude = 76.386324
 
 # socket setup
 server_port = 23000
 sock = None
 use_socket = True
+
+@api_view(['GET'])
+def get_coordinates(request):
+    global latitude, longitude
+
+    # Your logic to update latitude and longitude (replace with your implementation)
+    # For example, you might update these values from a sensor or database
+    latitude += 0.1
+    longitude += 0.2
+
+    data = {
+        'latitude': latitude,
+        'longitude': longitude,
+    }
+    return Response(data)
 
 def send_cmd(cmd):
     global sock
