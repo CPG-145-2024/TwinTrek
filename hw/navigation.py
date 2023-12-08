@@ -1,8 +1,8 @@
 import math
 import time
-from gpiozero  import DistanceSensor
+# from gpiozero  import DistanceSensor
 # from buggyController import BuggyConntroller
-ultrasonic = DistanceSensor(echo=18, trigger=24)
+# ultrasonic = DistanceSensor(echo=18, trigger=24)
 # ultrasonic.threshold_distance = 0.2 # in meters
 
 # bc = BuggyConntroller()
