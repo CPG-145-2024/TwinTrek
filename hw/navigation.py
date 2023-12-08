@@ -1,36 +1,27 @@
 import math
 import time
-# from gpiozero  import DistanceSensor
-# from buggyController import BuggyConntroller
-# ultrasonic = DistanceSensor(echo=18, trigger=24)
-# ultrasonic.threshold_distance = 0.2 # in meters
+from buggyController  import BuggyConntroller
 
-# bc = BuggyConntroller()
-# Start_c=bc.getLatLong()
-Start_c=[0,0]
-End_c=[0,20]
+bc = BuggyConntroller()
+bc.gpsSetup()
+#set GPIO Pins
+GPIO_TRIGGER = 18
+GPIO_ECHO = 24
 
-def navigate(Start_c,End_c):
-    # Starting_Coordinate =[ math.radians(Start_c[0]), math.radians(Start_c[1])]
+bc.ultrasonicSetup(GPIO_TRIGGER,GPIO_TRIGGER) 
+
+
+
+
+def navigate(End_c):
+    
     Ending_Coordinate = [math.radians(End_c[0]), math.radians(End_c[1])]
 
     while True:
         
-        # Start_c = bc.getLatLong()
+        Start_c = bc.getLatLong()
         Starting_Coordinate =[ math.radians(Start_c[0]), math.radians(Start_c[1])]
-        # get latitude and longitude from gps
-        print(ultrasonic.distance)
-        # ultrasonic.wait_for_in_range()
-        # if(ultrasonic.distance<0.2):
-            # print("Stop")
         
-            # rotate buggy right while ultrasonic.distance<0.2
-            # move buggy in that direction for 5 seconds
-            # continue
-
-
-        # ultrasonic.wait_for_out_of_range()
-        # print("Out of range")
 
         X =  math.cos(Ending_Coordinate[0]) * math.sin(Ending_Coordinate[1]-Starting_Coordinate[1])
 
@@ -62,14 +53,17 @@ def navigate(Start_c,End_c):
         print("Move "+direction_to_move)
 
         #get current direection from magnetometer
-        #bc.get_current_direction()
+        curr_direction = bc.get_current_direction()
         #rotate till current direction!= direction_to_move
         #keep moving till no obstacle encounter
-
-        # if(ultrasonic.distance<0.2):
-        #     print("Stop")
+        ultra_distance = dist = bc.getDistance()
+        if(ultra_distance<20):
+            print("Stop")
             # rotate buggy right while ultrasonic.distance<0.2
             # move buggy in that direction for 5 seconds
             # continue
-        time.sleep(2)
-navigate(Start_c,End_c)
+        # time.sleep(2)
+
+End_c = bc.getDestination()
+
+navigate(End_c)
