@@ -1,4 +1,8 @@
-# import RPi.GPIO as GPIO  
+# import RPi.GPIO as GPIO 
+import py_qmc5883l
+
+import time
+ 
 
 class BuggyConntroller(object):
     def __new__(cls):
@@ -9,6 +13,9 @@ class BuggyConntroller(object):
     def setup(self,in1,in2,en,in3,in4,enb):
         if not hasattr(self,'runSetup'):
             self.runSetup = False
+
+            self.sensor = py_qmc5883l.QMC5883L()
+            self.sensor.calibration = [[1.0270995979508475, -0.020248684731951426, 1902.8581272409879], [-0.020248684731951454, 1.0151297164672932, -2031.7481674046921], [0.0, 0.0, 1.0]]
             
             # GPIO.setmode(GPIO.BCM)
             # GPIO.setup(in1,GPIO.OUT)
@@ -78,5 +85,32 @@ class BuggyConntroller(object):
     
     def getSmokeLevel(self):
         return 1
-    
+    def get_current_direction(self):
+       
+        heading = ""
+        # while True:
+        m = self.sensor.get_magnet()
+        x=m[0]
+        y=m[1]
+        # heading = ""
+        if(x<80 and x>-700 and y>=1700 and y<=2150):
+            heading = "North";
+        elif(x>-1700 and x<-700 and  y>480 and y<1800):
+            heading = "North-East";
+        elif(x<-1600 and x>-2000 and y<500 and y>-600):
+            heading = "East";
+        elif(x>-1600 and x<-300 and  y>-1800 and y<400):
+            heading = "South-East";
+        elif(x>-300 and x<700 and y>-1800 and y<-1400):
+            heading = "South";
+        elif(x>690 and x<1800 and y<270 and y>-1700):
+            heading = "South-West";
+        elif(x<1850 and x>1550 and y>=-50 and y<=790):
+            heading = "West";
+        elif(x>110 and x<1550 and y>790 and y<2000):
+            heading = "North-West";
+
+        # print("x = "+str(x)+" y= "+str(y)+" heading = "+heading)
+        return heading
+        
     
