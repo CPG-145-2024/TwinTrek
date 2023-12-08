@@ -73,4 +73,5 @@ class BuggyConntroller(object):
         # GPIO.output(in2,GPIO.LOW)
         # GPIO.output(in3,GPIO.LOW)
         # GPIO.output(in4,GPIO.LOW)
-        
+    def getLatLong(self):
+        return (30.7,64.1)
