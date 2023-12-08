@@ -33,6 +33,17 @@
             width: 100%;
             height: 50vh; /* Adjust the height as needed */
         }
+
+        #gas-sensor-container {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 
@@ -85,7 +96,37 @@
         <img src="{% url 'buggy_feed' %}">
     </div>
 
+
     <div id="map"></div>
+
+    <div id="gas-sensor-info"></div>
+    <script>
+        function updateGasSensorStatus(gasValue) {
+                const statusElement = document.getElementById('gas-sensor-info');
+                if (gasValue > 350) {
+                    statusElement.textContent = 'Smoke Detected';
+                    statusElement.style.color = 'red';  // Optional: Change text color for emphasis
+                } else {
+                    statusElement.textContent = 'Smoke Not Detected';
+                    statusElement.style.color = 'green';  // Optional: Change text color for emphasis
+                }
+            }
+
+        function getGasSensorValue() {
+            // Replace this with your actual API endpoint to get the gas sensor value
+            fetch('/api/get-gas-sensor-value/')
+                .then(response => response.json())
+                .then(data => {
+                    const gasValue = data.gas_value;  // Replace 'gas_value' with the actual key in your JSON response
+                    updateGasSensorStatus(gasValue);
+                })
+                .catch(error => {
+                    console.error('Error fetching gas sensor value:', error);
+                });
+        }
+            // Call getGasSensorValue every 5 seconds
+        setInterval(getGasSensorValue, 5000);
+    </script>
 
     <!-- leaflet js -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
@@ -163,6 +204,7 @@
     
         // Call getPosition every 5 seconds
         setInterval(getPosition, 1000);
+
     </script>
 </body>
 

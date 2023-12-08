@@ -16,22 +16,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from webcam_app.views import webcam_image_view,get_coordinates,post_coordinates # Updated view imports
 from django.conf import settings
 from django.conf.urls.static import static
 from webcam_app import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/webcam-image/', webcam_image_view, name='webcam-image-view'),  # Updated view reference
+    path('api/webcam-image/', views.webcam_image_view, name='webcam-image-view'),  # Updated view reference
     # path('api/webcam-image/<int:image_id>/', get_webcam_image, name='get-webcam-image'),
     path('', TemplateView.as_view(template_name='webcam.html'), name='webcam'),
     path('buggy_feed/',views.buggy_feed,name='buggy_feed'),
-    path('api/get-coordinates/', get_coordinates, name='get_coordinates'),
-    path('api/post-coordinates/', post_coordinates, name='post-coordinates'),
+    path('api/get-coordinates/', views.get_coordinates, name='get_coordinates'),
+    path('api/post-coordinates/', views.post_coordinates, name='post-coordinates'),
     path('api/get-buggy-coordinates/',views.getBuggyPosition,name = 'get-buggy-coordinates'),
     path('api/get-smoke-level/',views.getSmokeLevel,name = 'get-smoke-level'),
-
+    path('api/get-gas-sensor-value/', views.get_gas_sensor_value, name='get_gas_sensor_value'),
 
 ]
 

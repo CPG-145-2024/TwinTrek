@@ -20,7 +20,6 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
 
-
 # Global variables
 detector = HandDetector() #detector obj
 
@@ -32,7 +31,7 @@ labels = ['Start','NULL','Left','Right','Mark','Pick','Drop']   # labels of gest
 kpc = KeyPointClassifier()  # gesture classification object
 
 latitude = 30.352899
-longitude = 76.386324
+longitude = 78.386324
 
 # socket setup
 server_port = 23000
@@ -101,6 +100,13 @@ def getSmokeLevel(request):
     except:
         return JsonResponse({'status': 'error'})
 
+@api_view(['GET'])
+def get_gas_sensor_value(request):
+    global smokeLevel
+    # Replace this with your actual logic to get the gas sensor value
+     # Example: Generate a random value between 300 and 400
+    return JsonResponse({'gas_value': smokeLevel})
+
 def send_cmd(cmd):
     global sock
     try:
@@ -109,7 +115,6 @@ def send_cmd(cmd):
         print("Connection with buggy lost")
         if(sock is not None):
             sock.close()
-
     return
 
 
