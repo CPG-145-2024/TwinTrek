@@ -112,7 +112,7 @@ if(use_socket):
             if(speed < 60):
                 speed = 0
             else:
-                speed = np.interp(speed,(50,300),(50,100))
+                speed = np.interp(speed,(50,300),(25,100))
                 speed = speed//1
             
             if(speed==0 and cmd == 0):
