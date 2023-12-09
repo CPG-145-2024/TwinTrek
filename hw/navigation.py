@@ -1,8 +1,8 @@
 import math
 import time
-from buggyController  import BuggyConntroller
+from buggyController  import BuggyController
 
-bc = BuggyConntroller()
+bc = BuggyController()
 bc.gpsSetup()
 #set GPIO Pins
 GPIO_TRIGGER = 18
@@ -63,6 +63,8 @@ def navigate(End_c):
         #keep moving till no obstacle encounter
         while(bc.getDistance()>20):
             bc.forward()
+            if(bc.getLatLong()==End_c):
+                return
 
         
         if(bc.getDistance()<=20):
@@ -75,5 +77,8 @@ def navigate(End_c):
             time.sleep(5)
 
 End_c = bc.getDestination()
+while End_c==None:
+    time.sleep(1)
+    End_c = bc.getDestination()
 
 navigate(End_c)
