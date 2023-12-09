@@ -1,13 +1,13 @@
 #Libraries
-from buggyController  import BuggyConntroller
+from buggyController  import BuggyController
 import time
 
-bc = BuggyConntroller()
+bc = BuggyController()
 #set GPIO Pins
 GPIO_TRIGGER = 18
 GPIO_ECHO = 24
 
-bc.ultrasonicSetup(GPIO_TRIGGER,GPIO_TRIGGER) 
+bc.ultrasonicSetup(GPIO_TRIGGER,GPIO_ECHO) 
 
     
  

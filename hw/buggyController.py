@@ -6,10 +6,10 @@ import pynmea2
 import time
  
 
-class BuggyConntroller(object):
+class BuggyController(object):
     def __new__(cls):
         if not hasattr(cls, 'instance'):
-            cls.instance = super(BuggyConntroller, cls).__new__(cls)
+            cls.instance = super(BuggyController, cls).__new__(cls)
         return cls.instance
     
     def setDestination(self,lat,long):
@@ -21,15 +21,21 @@ class BuggyConntroller(object):
 
     def setup(self,in1,in2,en,in3,in4,enb):
         if not hasattr(self,'runSetup'):
+            self.runSetup = False
+            try:
+                self.cleanup()
+            except:
+                print("cleaned")
             
             self.destination = None
             
-            self.runSetup = False
             
-
-            self.sensor = py_qmc5883l.QMC5883L()
-            self.sensor.calibration = [[1.0270995979508475, -0.020248684731951426, 1902.8581272409879], [-0.020248684731951454, 1.0151297164672932, -2031.7481674046921], [0.0, 0.0, 1.0]]
             
+            try:
+                self.sensor = py_qmc5883l.QMC5883L()
+                self.sensor.calibration = [[1.0270995979508475, -0.020248684731951426, 1902.8581272409879], [-0.020248684731951454, 1.0151297164672932, -2031.7481674046921], [0.0, 0.0, 1.0]]
+            except:
+                print("magneto setup error")
             self.in1 = in1
             self.in2 = in2
             self.en = en
@@ -59,17 +65,18 @@ class BuggyConntroller(object):
     
     def forward(self):
         print("f")
-        GPIO.output(self.in1,GPIO.HIGH)
-        GPIO.output(self.in2,GPIO.LOW)
-        GPIO.output(self.in3,GPIO.HIGH)
-        GPIO.output(self.in4,GPIO.LOW)
-    
-    def backward(self):
-        print("b")
         GPIO.output(self.in1,GPIO.LOW)
         GPIO.output(self.in2,GPIO.HIGH)
         GPIO.output(self.in3,GPIO.LOW)
         GPIO.output(self.in4,GPIO.HIGH)
+    
+    def backward(self):
+        print("b")
+        GPIO.output(self.in1,GPIO.HIGH)
+        GPIO.output(self.in2,GPIO.LOW)
+        GPIO.output(self.in3,GPIO.HIGH)
+        GPIO.output(self.in4,GPIO.LOW)
+        
     
     def setSpeed(self,s):
         print("set: ",s)
@@ -154,6 +161,16 @@ class BuggyConntroller(object):
     def ultrasonicSetup(self,trig,ech):
         self.trigger = trig
         self.echo = ech
+        
+        try:
+            self.cleanup()
+        except:
+            pass
+
+        print("trigger: ",trig," echo: ",ech)
+
+        GPIO.setmode(GPIO.BCM)
+        # self.setup()
         GPIO.setup(trig, GPIO.OUT)
         GPIO.setup(ech, GPIO.IN)    
         
@@ -188,5 +205,5 @@ class BuggyConntroller(object):
         print("c")
         GPIO.cleanup()
         
-    def __del__(self):
-        self.cleanup()
+    # def __del__(self):
+    #     self.cleanup()

@@ -2,12 +2,12 @@ import socket
 import threading
 import time
 import numpy as np
-from buggyController import BuggyConntroller
+from buggyController import BuggyController
 
 
 port = 23000
-ip = "192.168.174.214"
-use_socket = True
+ip = "192.168.111.214"
+use_socket = False
 is_forward = True
 speed = 0
 sock = None
@@ -17,12 +17,12 @@ in1 = 19
 in2 = 13
 en = 26
 temp1=1
-in3 = 6
-in4 = 5
+in3 = 5
+in4 = 6
 enb = 0
 
 
-buggyController = BuggyConntroller()
+buggyController = BuggyController()
 buggyController.setup(in1,in2,en,in3,in4,enb)
 
 
@@ -185,7 +185,7 @@ else:
         elif x=='l':
             print("low")
             # speed(x)
-            buggyController.setSpeed(50)
+            buggyController.setSpeed(25)
             x='z'
 
         elif x=='m':
@@ -196,7 +196,7 @@ else:
 
         elif x=='h':
             print("high")
-            buggyController.setSpeed(70)
+            buggyController.setSpeed(100)
             # speed(x)
             x='z'
         

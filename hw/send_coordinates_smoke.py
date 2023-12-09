@@ -2,8 +2,10 @@ import requests
 from buggyController import BuggyConntroller
 import time
  
-position_endpoint = "http://localhost:8000/api/get-buggy-coordinates/"
-smoke_endpoint = 'http://localhost:8000/api/get-smoke-level/'
+server_ip = "192.168.111.214"
+
+position_endpoint = "http://"+server_ip+":8000/api/get-buggy-coordinates/"
+smoke_endpoint = 'http://'+server_ip+':8000/api/get-smoke-level/'
  
  
 bc = BuggyConntroller()
