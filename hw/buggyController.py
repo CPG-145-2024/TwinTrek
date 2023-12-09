@@ -19,6 +19,10 @@ class BuggyController(object):
         return self.destination
         
 
+    def magnetoSetup(self):
+        self.sensor = py_qmc5883l.QMC5883L()
+        self.sensor.calibration = [[1.0270995979508475, -0.020248684731951426, 1902.8581272409879], [-0.020248684731951454, 1.0151297164672932, -2031.7481674046921], [0.0, 0.0, 1.0]]
+
     def setup(self,in1,in2,en,in3,in4,enb):
         if not hasattr(self,'runSetup'):
             self.runSetup = False
@@ -137,23 +141,26 @@ class BuggyController(object):
         m = self.sensor.get_magnet()
         x=m[0]
         y=m[1]
+        # print(x,y)
         # heading = ""
         if(x<80 and x>-700 and y>=1700 and y<=2150):
-            heading = "North";
+            heading = "North"
         elif(x>-1700 and x<-700 and  y>480 and y<1800):
-            heading = "North-East";
+            heading = "North-East"
         elif(x<-1600 and x>-2000 and y<500 and y>-600):
-            heading = "East";
+            heading = "East"
         elif(x>-1600 and x<-300 and  y>-1800 and y<400):
-            heading = "South-East";
+            heading = "South-East"
         elif(x>-300 and x<700 and y>-1800 and y<-1400):
-            heading = "South";
+            heading = "South"
         elif(x>690 and x<1800 and y<270 and y>-1700):
-            heading = "South-West";
+            heading = "South-West"
         elif(x<1850 and x>1550 and y>=-50 and y<=790):
-            heading = "West";
+            heading = "West"
         elif(x>110 and x<1550 and y>790 and y<2000):
-            heading = "North-West";
+            heading = "North-West"
+        else:
+            heading = "Need Calibration!"
 
         # print("x = "+str(x)+" y= "+str(y)+" heading = "+heading)
         return heading
@@ -167,7 +174,7 @@ class BuggyController(object):
         except:
             pass
 
-        print("trigger: ",trig," echo: ",ech)
+        # print("trigger: ",trig," echo: ",ech)
 
         GPIO.setmode(GPIO.BCM)
         # self.setup()

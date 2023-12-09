@@ -1,6 +1,6 @@
-from buggyController import BuggyConntroller
+from buggyController import BuggyController
 
-bc = BuggyConntroller()
+bc = BuggyController()
 bc.gpsSetup()
 
 while True:

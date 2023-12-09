@@ -7,7 +7,7 @@ from buggyController import BuggyController
 
 port = 23000
 ip = "192.168.111.214"
-use_socket = False
+use_socket = True
 is_forward = True
 speed = 0
 sock = None
