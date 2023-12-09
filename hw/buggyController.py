@@ -1,8 +1,7 @@
-# import RPi.GPIO as GPIO 
-# import py_qmc5883l
-# import serial
-# import string
-# import pynmea2
+import RPi.GPIO as GPIO 
+import py_qmc5883l
+import serial
+import pynmea2
 
 import time
  
@@ -31,6 +30,13 @@ class BuggyConntroller(object):
             self.sensor = py_qmc5883l.QMC5883L()
             self.sensor.calibration = [[1.0270995979508475, -0.020248684731951426, 1902.8581272409879], [-0.020248684731951454, 1.0151297164672932, -2031.7481674046921], [0.0, 0.0, 1.0]]
             
+            self.in1 = in1
+            self.in2 = in2
+            self.en = en
+            self.in3 = in3
+            self.in4 = in4
+            self.enb = enb
+
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(in1,GPIO.OUT)
             GPIO.setup(in2,GPIO.OUT)
@@ -53,17 +59,17 @@ class BuggyConntroller(object):
     
     def forward(self):
         print("f")
-        GPIO.output(in1,GPIO.HIGH)
-        GPIO.output(in2,GPIO.LOW)
-        GPIO.output(in3,GPIO.HIGH)
-        GPIO.output(in4,GPIO.LOW)
+        GPIO.output(self.in1,GPIO.HIGH)
+        GPIO.output(self.in2,GPIO.LOW)
+        GPIO.output(self.in3,GPIO.HIGH)
+        GPIO.output(self.in4,GPIO.LOW)
     
     def backward(self):
         print("b")
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.HIGH)
-        GPIO.output(in3,GPIO.LOW)
-        GPIO.output(in4,GPIO.HIGH)
+        GPIO.output(self.in1,GPIO.LOW)
+        GPIO.output(self.in2,GPIO.HIGH)
+        GPIO.output(self.in3,GPIO.LOW)
+        GPIO.output(self.in4,GPIO.HIGH)
     
     def setSpeed(self,s):
         print("set: ",s)
@@ -91,10 +97,10 @@ class BuggyConntroller(object):
     def stop(self):
         
         print("s");
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
-        GPIO.output(in3,GPIO.LOW)
-        GPIO.output(in4,GPIO.LOW)
+        GPIO.output(self.in1,GPIO.LOW)
+        GPIO.output(self.in2,GPIO.LOW)
+        GPIO.output(self.in3,GPIO.LOW)
+        GPIO.output(self.in4,GPIO.LOW)
      
     def gpsSetup(self,port="/dev/ttyS0",baud = 9600,timeout=0.5):
         self.gpsSerial=serial.Serial(port=port,baudrate=baud,timeout=timeout)
