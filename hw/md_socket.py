@@ -6,19 +6,19 @@ from buggyController import BuggyController
 
 
 port = 23000
-ip = "192.168.111.214"
-use_socket = True
+ip = "192.168.111.242"
+use_socket = False
 is_forward = True
 speed = 0
 sock = None
 
 
-in1 = 19
-in2 = 13
+in1 = 19    #left wheel back
+in2 = 13    #left wheel forward
 en = 26
 temp1=1
-in3 = 5
-in4 = 6
+in3 = 5     # right back
+in4 = 6     # right forward
 enb = 0
 
 
@@ -38,8 +38,6 @@ def setDestination(command):
 def timeout(sec):
     while(time.time()-start_time<sec):
         pass
-    global prev_cmd
-    prev_cmd = 10
     buggyController.stop()
 
 
@@ -60,11 +58,10 @@ def setup():
     print("connected to server")
 
 if(use_socket):
-    cmd_list = ['Start','NULL','Left','Right','Mark','Pick','Drop']
+    cmd_list = ['Start','Stop','Left','Right','Mark','Pick','Drop']
 
     setup()
 
-    prev_cmd = -1
     cmd = -2
 
     to = threading.Thread(target=timeout,args=(2,))
@@ -117,26 +114,28 @@ if(use_socket):
             
             if(speed==0 and cmd == 0):
                 buggyController.stop()
-                prev_cmd=10
                 continue
 
             cmd = int(cmd)
-            if(cmd==0):
-                buggyController.setSpeed(speed)
-                if prev_cmd == 10:
+                # if prev_cmd == 10:
+
+            
+            if(cmd>=0 and cmd<len(cmd_list)):
+                cmd = cmd_list[cmd]     #['Start','Stop','Left','Right','Mark','Pick','Drop']
+                if cmd=="Start":
+                    buggyController.setSpeed(speed)
                     if is_forward:
                         buggyController.forward()
                     else:
                         buggyController.backward()
-            
-            if(cmd!=prev_cmd and cmd>=1 and cmd<len(cmd_list)):
-                prev_cmd = cmd
-                cmd = cmd_list[cmd]     #['Start','NULL','Left','Right','Mark','Pick','Drop']
-                
                 if cmd=="Left":
+                    buggyController.setSpeed(speed)
                     buggyController.left()
                 elif cmd=="Right":
+                    buggyController.setSpeed(speed)
                     buggyController.right()
+                elif cmd=="Stop":
+                    buggyController.stop()
                 elif cmd=="Mark":
                     buggyController.mark()
                 elif cmd=="Pick":
@@ -205,6 +204,11 @@ else:
             buggyController.cleanup()
             print("GPIO Clean up")
             break
+        
+        elif x =='rl':
+            buggyController.left()
+        elif x == 'rr':
+            buggyController.right()
         
         else:
             print("<<<  wrong data  >>>")

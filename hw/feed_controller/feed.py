@@ -1,10 +1,10 @@
 import socket
 import cv2
 import time
-import humanDetector
+# import humanDetector
 
 
-server_ip = "192.168.111.214"
+server_ip = "192.168.111.242"
 server_port=22000
 
 def connect():

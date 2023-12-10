@@ -61,9 +61,9 @@ class BuggyController(object):
             GPIO.output(in3,GPIO.LOW)
             GPIO.output(in4,GPIO.LOW)
             self.q=GPIO.PWM(enb,1000)
-            self.q.start(25)
-            self.p.start(25)
-    
+            self.q.start(30)
+            self.p.start(30)
+            self.dc = 30
 
     
     
@@ -84,17 +84,33 @@ class BuggyController(object):
     
     def setSpeed(self,s):
         print("set: ",s)
+        self.dc = s
         self.p.ChangeDutyCycle(s)
         self.q.ChangeDutyCycle(s)
     
 
     
+    # def left(self):
+    #     print("l")
+    #     self.p.ChangeDutyCycle(0)
+    #     self.q.ChangeDutyCycle(50)
+
     def left(self):
         print("l")
-        
-
+        # self.p.ChangeDutyCycle(45)
+        # self.q.ChangeDutyCycle(45)
+        GPIO.output(self.in1,GPIO.HIGH)
+        GPIO.output(self.in2,GPIO.LOW)
+        GPIO.output(self.in3,GPIO.LOW)
+        GPIO.output(self.in4,GPIO.HIGH)
+    
     def right(self):
         print("r")
+        GPIO.output(self.in1,GPIO.LOW)
+        GPIO.output(self.in2,GPIO.HIGH)
+        GPIO.output(self.in3,GPIO.HIGH)
+        GPIO.output(self.in4,GPIO.LOW)
+
         
     def mark(self):
         print("marked")
