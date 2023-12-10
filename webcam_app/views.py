@@ -33,6 +33,8 @@ kpc = KeyPointClassifier()  # gesture classification object
 latitude = 30.352899
 longitude = 78.386324
 smokeLevel =0
+direction = None
+obstacleDistance = None
 
 buggyCam = BuggyCam()
 
@@ -92,6 +94,26 @@ def getBuggyPosition(request):
     except:
         return JsonResponse({'status': 'error'})
 
+@api_view(['POST'])    
+def getUltrasonicDistance(request):
+    try:
+        data = request.data
+        global obstacleDistance
+        obstacleDistance = float(data.get('distance'))
+        
+        return JsonResponse({'status' : 'success'})
+    except:
+        return JsonResponse({'status': 'error'})
+    
+@api_view(['POST'])    
+def getDirection(request):
+    try:
+        data = request.data
+        global direction
+        direction = float(data.get('direction'))
+        return JsonResponse({'status' : 'success'})
+    except:
+        return JsonResponse({'status': 'error'})
 
 @api_view(['POST'])    
 def getSmokeLevel(request):

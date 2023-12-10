@@ -130,9 +130,9 @@ class BuggyController(object):
         GPIO.output(self.in4,GPIO.LOW)
      
     def gpsSetup(self,port="/dev/ttyS0",baud = 9600,timeout=0.5):
-        self.gpsSerial=serial.Serial(port=port,baudrate=baud,timeout=timeout)
-        dataout = pynmea2.NMEAStreamReader()
-        pass
+        if not hasattr(self,'gpsSerial'):
+            self.gpsSerial=serial.Serial(port=port,baudrate=baud,timeout=timeout)
+            dataout = pynmea2.NMEAStreamReader()
         
     def getLatLong(self):
         while True:
@@ -182,20 +182,19 @@ class BuggyController(object):
         return heading
         
     def ultrasonicSetup(self,trig,ech):
-        self.trigger = trig
-        self.echo = ech
-        
-        try:
-            self.cleanup()
-        except:
-            pass
+        if not hasattr(self,'trigger'):
+            self.trigger = trig
+            self.echo = ech
+            
+            try:
+                self.cleanup()
+            except:
+                pass
 
-        # print("trigger: ",trig," echo: ",ech)
-
-        GPIO.setmode(GPIO.BCM)
-        # self.setup()
-        GPIO.setup(trig, GPIO.OUT)
-        GPIO.setup(ech, GPIO.IN)    
+            GPIO.setmode(GPIO.BCM)
+            # self.setup()
+            GPIO.setup(trig, GPIO.OUT)
+            GPIO.setup(ech, GPIO.IN)    
         
     def getDistance(self):      # return distance in cm
         # set Trigger to HIGH
