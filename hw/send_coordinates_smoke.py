@@ -1,5 +1,5 @@
 import requests
-# from buggyController import BuggyConntroller
+from buggyController import BuggyConntroller
 import time
  
 server_ip = "192.168.111.242"
@@ -8,13 +8,14 @@ position_endpoint = "http://"+server_ip+":8000/api/get-buggy-coordinates/"
 smoke_endpoint = 'http://'+server_ip+':8000/api/get-smoke-level/'
  
  
-# bc = BuggyConntroller()
+bc = BuggyConntroller()
+bc.gpsSetup()
 
 while True:
-#     lat,long = bc.getLatLong()
-#     smokeLevel = bc.getSmokeLevel()
-    lat,long = (213.123,123.234)
-    smokeLevel =212.12
+    lat,long = bc.getLatLong()
+    smokeLevel = bc.getSmokeLevel()
+#     lat,long = (213.123,123.234)
+#     smokeLevel =212.12
 
 
     # data to be sent to api
