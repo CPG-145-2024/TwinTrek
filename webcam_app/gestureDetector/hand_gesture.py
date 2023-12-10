@@ -124,13 +124,13 @@ def main():
                 forward = yt>yf
                 # print(forward)
 
-                xmin,xmax,ymin,ymax = det.getBoundingValues(hand['landmarks'])
+                # xmin,xmax,ymin,ymax = det.getBoundingValues(hand['landmarks'])
 
                 #scale for distance independence
-                xt = np.interp(xt,(xmin,xmax),(0,300))
-                xf = np.interp(xf,(xmin,xmax),(0,300))
-                yt = np.interp(yt,(ymin,ymax),(0,300))
-                yf = np.interp(yf,(ymin,ymax),(0,300))
+                # xt = np.interp(xt,(xmin,xmax),(0,300))
+                # xf = np.interp(xf,(xmin,xmax),(0,300))
+                # yt = np.interp(yt,(ymin,ymax),(0,300))
+                # yf = np.interp(yf,(ymin,ymax),(0,300))
                 
                 distance = np.hypot(xt-xf,yt-yf)  # goes atmax to 300
                 # print(distance)
