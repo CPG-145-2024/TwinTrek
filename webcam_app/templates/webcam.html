@@ -195,8 +195,13 @@
                 });
         }
 
+        var currentMarker = null;
 
         function handleMapClick(e) {
+            
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+            }
             
             var lat = e.latlng.lat;
             var long = e.latlng.lng;
@@ -207,7 +212,7 @@
         }
 
         var redMarkerIcon = new L.Icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+            iconUrl: '/media/marker-icon-red.png',
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [1, -34],
