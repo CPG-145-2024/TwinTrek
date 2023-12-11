@@ -202,11 +202,11 @@
             if (currentMarker) {
                 map.removeLayer(currentMarker);
             }
-            
+
             var lat = e.latlng.lat;
             var long = e.latlng.lng;
 
-            L.marker([lat, long], { icon: redMarkerIcon }).addTo(map);
+            currentMarker=L.marker([lat, long], { icon: redMarkerIcon }).addTo(map);
 
             // Send the coordinates to the API endpoint
         }
