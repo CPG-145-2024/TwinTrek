@@ -31,8 +31,8 @@ urlpatterns = [
     path('api/get-buggy-coordinates/',views.getBuggyPosition,name = 'get-buggy-coordinates'),
     path('api/get-smoke-level/',views.getSmokeLevel,name = 'get-smoke-level'),
     path('api/get-gas-sensor-value/', views.get_gas_sensor_value, name='get_gas_sensor_value'),
-    path('api/get-direction/',views.getDirection(),name = 'get-direction'),
-    path('api/get-obstacle-distance/',views.getUltrasonicDistance(),name = 'get-ultrasonic-distance'),
+    path('api/get-direction/',views.getDirection,name = 'get-direction'),
+    path('api/get-obstacle-distance/',views.getUltrasonicDistancegit ,name = 'get-ultrasonic-distance'),
     path('manual-mode/', TemplateView.as_view(template_name='webcam.html'), name='manual-mode'),
     path('auto/', TemplateView.as_view(template_name='webcam2.html'), name='auto'),
     

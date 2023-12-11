@@ -13,7 +13,6 @@ import numpy as np
 
 class BuggyCam(object):
 	def __init__(self):
-		# self.url = cv2.VideoCapture("rtsp://admin:Mumbai@123@203.192.228.175:554/")
 		self.sock = socket(AF_INET, SOCK_STREAM)
 		self.sock.bind(('0.0.0.0', 22000))
 		self.sock.listen(10)
