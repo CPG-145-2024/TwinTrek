@@ -7,7 +7,7 @@ from buggyController import BuggyController
 
 port = 23000
 ip = "192.168.111.242"
-use_socket = False
+use_socket = True
 is_forward = True
 speed = 0
 sock = None
@@ -120,6 +120,7 @@ if(use_socket):
             if(speed < 60):
                 speed = 0
             else:
+                print("Distance:",speed,"\n\n")
                 speed = np.interp(speed,(50,300),(25,100))
                 speed = speed//1
             

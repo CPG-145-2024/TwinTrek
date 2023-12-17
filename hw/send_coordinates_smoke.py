@@ -1,5 +1,5 @@
 import requests
-from buggyController import BuggyConntroller
+from buggyController import BuggyController
 import time
  
 server_ip = "192.168.111.242"
@@ -14,7 +14,7 @@ GPIO_ECHO = 24
 
 
  
-bc = BuggyConntroller()
+bc = BuggyController()
 bc.gpsSetup()
 bc.ultrasonicSetup(GPIO_TRIGGER,GPIO_TRIGGER) 
 bc.magnetoSetup()
