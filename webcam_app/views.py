@@ -15,7 +15,6 @@ import socket
 
 from django.http.response import StreamingHttpResponse
 from webcam_app.camera import BuggyCam
-import time
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
@@ -50,11 +49,18 @@ busy_sock = False
 def manual(request):
     global mode 
     mode = "manual"
+    
+    message = "Mode,manual\n"
+    send_cmd(message)
+    
     return render(request,"webcam.html")
 
 def automatic(request):
     global mode
     mode = "automatic"
+    
+    message = "Mode,automatic\n"
+    send_cmd(message)
     return render(request,"webcam2.html")
     
 
