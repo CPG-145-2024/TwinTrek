@@ -1,5 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.shortcuts import render
 
 import cv2
 import numpy as np
@@ -21,6 +22,7 @@ from django.http import JsonResponse
 import json
 
 # Global variables
+mode = "manual"
 detector = HandDetector() #detector obj
 
 forward = False # is going forward or backward
@@ -43,6 +45,18 @@ server_port = 23000
 sock = None
 use_socket = True
 busy_sock = False
+
+
+def manual(request):
+    global mode 
+    mode = "manual"
+    return render(request,"webcam.html")
+
+def automatic(request):
+    global mode
+    mode = "automatic"
+    return render(request,"webcam2.html")
+    
 
 @api_view(['GET'])
 def get_coordinates(request):

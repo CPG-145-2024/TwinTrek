@@ -24,7 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/webcam-image/', views.webcam_image_view, name='webcam-image-view'),  # Updated view reference
     # path('api/webcam-image/<int:image_id>/', get_webcam_image, name='get-webcam-image'),
-    path('', TemplateView.as_view(template_name='webcam.html'), name='webcam'),
+    path('', views.manual, name='webcam'),
     path('buggy_feed/',views.buggy_feed,name='buggy_feed'),
     path('api/get-coordinates/', views.get_coordinates, name='get_coordinates'),
     path('api/post-coordinates/', views.post_coordinates, name='post-coordinates'),
@@ -33,8 +33,8 @@ urlpatterns = [
     path('api/get-gas-sensor-value/', views.get_gas_sensor_value, name='get_gas_sensor_value'),
     path('api/get-direction/',views.getDirection,name = 'get-direction'),
     path('api/get-obstacle-distance/',views.getUltrasonicDistance ,name = 'get-ultrasonic-distance'),
-    path('manual-mode/', TemplateView.as_view(template_name='webcam.html'), name='manual-mode'),
-    path('auto/', TemplateView.as_view(template_name='webcam2.html'), name='auto'),
+    path('manual-mode/', views.manual, name='manual-mode'),
+    path('auto/', views.automatic, name='auto'),
     
 
 
