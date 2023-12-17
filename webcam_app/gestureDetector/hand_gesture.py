@@ -7,7 +7,7 @@ from .keypoint_classifier.keypoint_classifier import KeyPointClassifier
 
 
 class HandDetector:
-    def __init__(self,mode=False,maxHands = 2,detection = 0.75,tracking = 0.5):
+    def __init__(self,mode=False,maxHands = 2,detection = 0.62,tracking = 0.5):
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(
             static_image_mode = mode,
