@@ -41,10 +41,13 @@ def setMode(command):
     if(mode == "manual"):
         if(automatic_process is not None):
             automatic_process.terminate()
+            automatic_process = None
         return
     elif(mode=="automatic"):
-        automatic_process = multiprocessing.Process(target=navigation.startAutomatic)
-        automatic_process.start()
+        if automatic_process is None:
+            buggyController.setSpeed(50)
+            automatic_process = multiprocessing.Process(target=navigation.startAutomatic)
+            automatic_process.start()
         
 
 def setDestination(command):
