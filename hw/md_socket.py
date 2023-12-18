@@ -21,9 +21,13 @@ in3 = 5     # right back
 in4 = 6     # right forward
 enb = 0
 
+arm1 = 21 #left
+arm2 = 20 #right
+
 
 buggyController = BuggyController()
 buggyController.setup(in1,in2,en,in3,in4,enb)
+buggyController.pickDropSetup(arm1,arm2)
 
 
 start_time = -1

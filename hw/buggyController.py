@@ -4,6 +4,8 @@ import serial
 import pynmea2
 
 import time
+from time import *
+import threading
  
 
 class BuggyController(object):
@@ -117,11 +119,39 @@ class BuggyController(object):
     def mark(self):
         print("marked")
         
+    def setAngle(self,angle,arm,pwm):
+        duty = angle/18 + 2
+        GPIO.output(arm, True)
+        pwm.ChangeDutyCycle(duty)
+        sleep(1)
+        GPIO.output(arm, False)
+        pwm.ChangeDutyCycle(0)
+        
+        
+    def pickDropSetup(self,a1=21,a2=20):
+        if not hasattr(self,"arm1"):
+            self.arm1 = a1
+            self.arm2 = a2
+            
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.arm1, GPIO.OUT)
+            self.pwm1=GPIO.PWM(self.arm1, 50)
+            self.pwm1.start(0)
+            
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.arm2, GPIO.OUT)
+            self.pwm2=GPIO.PWM(self.arm2, 50)
+            self.pwm2.start(30)
+            
+        
+    
     def pick(self):
-        print("picked")
+        threading.Thread(target=self.setAngle,args=(0,self.arm1,self.pwm1)).start()
+        self.setAngle(60,self.arm2,self.pwm2)
     
     def drop(self):
-        print("dropped")
+        threading.Thread(target=self.setAngle,args=(30,self.arm1,self.pwm1)).start()
+        self.setAngle(30,self.arm2,self.pwm2)
         
     def stop(self):
         

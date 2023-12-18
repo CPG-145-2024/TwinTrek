@@ -11,17 +11,6 @@ GPIO_ECHO = 24
 bc.ultrasonicSetup(GPIO_TRIGGER,GPIO_TRIGGER) 
 
 
-#testing
-# in1 = 19    #left wheel back
-# in2 = 13    #left wheel forward
-# en = 26
-# temp1=1
-# in3 = 5     # right back
-# in4 = 6     # right forward
-# enb = 0
-
-# bc.setup(in1,in2,en,in3,in4,enb)
-# bc.ultrasonicSetup()
 
 def navigate(End_c):
     
