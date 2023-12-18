@@ -3,7 +3,8 @@ import threading
 import time
 import numpy as np
 from buggyController import BuggyController
-
+import navigation
+import multiprocessing
 
 port = 23000
 ip = "192.168.111.242"
@@ -32,13 +33,19 @@ buggyController.pickDropSetup(arm1,arm2)
 
 start_time = -1
 stop_thread = False
+automatic_process = None
 
 def setMode(command):
+    global automatic_process
     _,mode = command.split(',')
     if(mode == "manual"):
+        if(automatic_process is not None):
+            automatic_process.terminate()
         return
     elif(mode=="automatic"):
-        pass
+        automatic_process = multiprocessing.Process(target=navigation.startAutomatic)
+        automatic_process.start()
+        
 
 def setDestination(command):
     _,lat,long = command.split(',')
