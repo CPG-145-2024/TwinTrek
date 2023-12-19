@@ -53,7 +53,7 @@ def manual(request):
     message = "Mode,manual\n"
     send_cmd(message)
     
-    return render(request,"webcam.html")
+    return render(request,"index.html")
 
 def automatic(request):
     global mode
@@ -61,7 +61,7 @@ def automatic(request):
     
     message = "Mode,automatic\n"
     send_cmd(message)
-    return render(request,"webcam2.html")
+    return render(request,"index2.html")
     
 
 @api_view(['GET'])
